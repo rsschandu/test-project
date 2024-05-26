@@ -33,4 +33,10 @@ export class LendingHistory extends BaseEntity {
 
   @OneToMany(() => Book, (book) => book.id)
   book: Book;
+
+  @Column({ nullable: true })
+  returnDate: Date;
+
+  @Column({ nullable: true })
+  rental_charge: number;
 }
