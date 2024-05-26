@@ -112,14 +112,14 @@ export class BookService {
         // If book is returned update the lending history and book
         this.lendingHistoryRepository.update(currentLending.id, {
           returnDate: returnDate,
-          rental_charge: days * (await this.getBookPrice(book.bookType)),
+          rental_charge: days * (await this.getBookPrice(book.bookType, days)),
         });
         this.bookRepository.update(book.id, {
           currentLendingHistoryId: null,
         });
         return {
           name: book.bookName,
-          rental_charge: days * (await this.getBookPrice(book.bookType)),
+          rental_charge: days * (await this.getBookPrice(book.bookType, days)),
         };
       }
       throw new HttpException(
@@ -130,7 +130,7 @@ export class BookService {
     throw new HttpException(`Book with ${id} not found`, 400);
   }
 
-  async getBookPrice(type: BookType): Promise<number> {
+  async getBookPrice(type: BookType, days: number): Promise<number> {
     const priceEntity = await this.pricingTableRepository.findOne({
       where: {
         bookType: type,
@@ -139,6 +139,14 @@ export class BookService {
     if (!priceEntity) {
       throw new HttpException(`Price for ${type} not found`, 400);
     }
-    return priceEntity.price;
+    if (days <= priceEntity.minimumDays) {
+      return Math.max(priceEntity.minimumCharge, days * priceEntity.price);
+    } else {
+      return (
+        (days - priceEntity.minimumDays) *
+          (priceEntity.additionalCharge + priceEntity.price) +
+        priceEntity.price * priceEntity.minimumDays
+      );
+    }
   }
 }
