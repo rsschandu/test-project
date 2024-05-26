@@ -62,7 +62,10 @@ export class BookService {
         };
         return response;
       }
-      const { currentLendingHistoryId, ...response } = book;
+      const { currentLendingHistoryId, ...response } = {
+        ...book,
+        status: 'Available',
+      };
       return response;
     }
     return 'Book not found';
