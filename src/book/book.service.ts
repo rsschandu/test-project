@@ -2,13 +2,12 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Book } from './entities/book.entity';
+import { Book, BookType } from './entities/book.entity';
 import { Repository } from 'typeorm';
 import { LendingHistory } from 'src/lending_history/entities/lending_history.entity';
 import { ReturnBookDto } from './dto/return-book.dto';
+import { PricingTable } from 'src/pricing_table/entities/pricing_table.entity';
 
-// since the price is fixed for this scenario there is no point in saving it in the database
-const PER_DAY_RENTAL_CHARGE = 1;
 @Injectable()
 export class BookService {
   constructor(
@@ -16,6 +15,8 @@ export class BookService {
     private bookRepository: Repository<Book>,
     @InjectRepository(LendingHistory)
     private lendingHistoryRepository: Repository<LendingHistory>,
+    @InjectRepository(PricingTable)
+    private pricingTableRepository: Repository<PricingTable>,
   ) {}
 
   create(createBookDto: CreateBookDto) {
@@ -111,14 +112,14 @@ export class BookService {
         // If book is returned update the lending history and book
         this.lendingHistoryRepository.update(currentLending.id, {
           returnDate: returnDate,
-          rental_charge: days * PER_DAY_RENTAL_CHARGE,
+          rental_charge: days * (await this.getBookPrice(book.bookType)),
         });
         this.bookRepository.update(book.id, {
           currentLendingHistoryId: null,
         });
         return {
           name: book.bookName,
-          rental_charge: days * PER_DAY_RENTAL_CHARGE,
+          rental_charge: days * (await this.getBookPrice(book.bookType)),
         };
       }
       throw new HttpException(
@@ -127,5 +128,17 @@ export class BookService {
       );
     }
     throw new HttpException(`Book with ${id} not found`, 400);
+  }
+
+  async getBookPrice(type: BookType): Promise<number> {
+    const priceEntity = await this.pricingTableRepository.findOne({
+      where: {
+        bookType: type,
+      },
+    });
+    if (!priceEntity) {
+      throw new HttpException(`Price for ${type} not found`, 400);
+    }
+    return priceEntity.price;
   }
 }

@@ -9,6 +9,12 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export enum BookType {
+  Regular = 'Regular',
+  Fiction = 'Fiction',
+  Novel = 'Novel',
+}
+
 @Entity()
 export class Book extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -19,6 +25,9 @@ export class Book extends BaseEntity {
 
   @Column()
   bookName: string;
+
+  @Column({ default: 'Regular', type: 'enum', enum: BookType })
+  bookType: BookType;
 
   @Column({ nullable: true })
   currentLendingHistoryId: string;
