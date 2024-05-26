@@ -34,3 +34,10 @@ localhost:3000/book
 get a book by name:
 
 localhost:3000/book/name/gracefully anchored phooey
+
+![image](https://github.com/rsschandu/test-project/assets/16938250/5020d30f-eabd-4399-b803-28fe89b6373b)
+
+![image](https://github.com/rsschandu/test-project/assets/16938250/ff57d0b4-3cc1-4966-879f-577b1f6fe669)
+
+![image](https://github.com/rsschandu/test-project/assets/16938250/f85addb2-9284-4778-a8e9-5180b5c85e0f)
+
