@@ -4,6 +4,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -29,11 +30,9 @@ export class Book extends BaseEntity {
   @Column({ default: 'Regular', type: 'enum', enum: BookType })
   bookType: BookType;
 
-  @Column({ nullable: true })
-  currentLendingHistoryId: string;
-
   @OneToOne(() => LendingHistory, (lendingHistory) => lendingHistory.id, {
     nullable: true,
   })
-  currentLendingHistory: LendingHistory;
+  @JoinColumn({ name: 'currentLendingHistoryId' })
+  currentLendingHistoryId: string;
 }

@@ -5,7 +5,7 @@ import {
   Column,
   Entity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -22,17 +22,13 @@ export class LendingHistory extends BaseEntity {
   @Column()
   daysToReturn: number;
 
-  @Column()
+  @ManyToOne(() => Customer, (customer) => customer.id)
+  @JoinColumn({ name: 'customerId', referencedColumnName: 'id' })
   customerId: number;
 
-  @OneToMany(() => Customer, (customer) => customer.id)
-  customer: Customer;
-
-  @Column()
+  @ManyToOne(() => Book, (book) => book.id)
+  @JoinColumn({ name: 'bookId', referencedColumnName: 'id' })
   bookId: string;
-
-  @OneToMany(() => Book, (book) => book.id)
-  book: Book;
 
   @Column({ nullable: true })
   returnDate: Date;
